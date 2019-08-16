@@ -4,7 +4,7 @@ async function run() {
   try {
     const myInput = core.getInput('myInput');
     core.debug(`Hello ${myInput}`);
-    core.warning(`!Hello ${myInput}`);
+    core.warning(`!2Hello ${myInput}`);
   } catch (error) {
     core.setFailed(error.message);
   }
