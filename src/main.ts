@@ -9,9 +9,7 @@ const ref = 'heads/master'
 
 async function run() {
   try {
-    const octokit = new github.GitHub('22ffdfb2b815c22603d33701b709922a3de04e99');
-
-
+    const octokit = new github.GitHub('ef2686bc3ccd2db0b5a097c6d1b1c8080e9f426a');
 
     const sha_latest_commit = await octokit.git.getRef({
       ...config,
@@ -26,10 +24,9 @@ async function run() {
 
     console.log(commit.data.tree.sha);
 
-
     const blob = await octokit.git.createBlob({
       ...config,
-      content: 'asdasdasd'
+      content: 'asdasdasd' + Date.now()
     })
 
     console.log(blob.data.sha);
