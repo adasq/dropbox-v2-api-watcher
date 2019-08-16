@@ -5,6 +5,7 @@
   "description": "Node 12 template action",
   "main": "lib/main.js",
   "scripts": {
+    "start": "node lib/main.js",
     "build": "tsc",
     "test": "jest"
   },
