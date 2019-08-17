@@ -113,6 +113,9 @@ async function run() {
       console.log(pr.data)
     }
 
+    const newDist = require('fs').readFileSync('dist/api.json').toString();
+    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+    console.log(newDist);
     await createPullRequest({
       owner: 'adasq',
       repo: 'dropbox-v2-api',
@@ -123,7 +126,7 @@ async function run() {
       commitMessage: 'ver update',
       files: [
         ['test321', 'content of test321 xxx'],
-        ['dist/api.json', require('fs').readFileSync('dist/api.json').toString()]
+        ['dist/api.json', newDist]
       ]
     })
 
