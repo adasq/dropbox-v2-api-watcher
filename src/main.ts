@@ -22,7 +22,7 @@ const content = 'a3' + Date.now()
 async function run() {
   try {
 
-    const octokit = new github.GitHub('');
+    const octokit = new github.GitHub(process.env.TOKEN);
 
     const createPullRequest = async ({
       owner,
@@ -122,13 +122,13 @@ async function run() {
       owner: 'adasq',
       repo: 'greenbot',
       from: `branch-no-${Date.now()}`,
-      to: 'master',
+      to: 'branch-no-1566030253363',
       title: 'PR title',
       body: 'PR body',
       commitMessage: 'ver update',
       files: [
-        ['test123', 'content of test123'],
-        ['test321', 'content of test321'],
+        // ['test123', 'content of test123'],
+        ['test321', 'content of test321 xxx'],
       ]
     })
 
