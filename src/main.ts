@@ -120,14 +120,13 @@ async function run() {
 
     await createPullRequest({
       owner: 'adasq',
-      repo: 'greenbot',
+      repo: 'dropbox-v2-api',
       from: `branch-no-${Date.now()}`,
-      to: 'branch-no-1566030253363',
+      to: 'testing-gh-actions',
       title: 'PR title',
       body: 'PR body',
       commitMessage: 'ver update',
       files: [
-        // ['test123', 'content of test123'],
         ['test321', 'content of test321 xxx'],
       ]
     })
