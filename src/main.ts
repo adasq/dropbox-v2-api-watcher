@@ -7,62 +7,106 @@ const config = {
 }
 const ref = 'heads/master'
 
+// Customize this stuff:
+const owner = 'adasq';
+const repo = 'greenbot';
+
+// Constants
+const FILE = '100644'; // commit mode
+
+
+const content = 'a3' + Date.now()
+const branchName = `branch-no-${Date.now()}`
+
+
+
 async function run() {
   try {
-    const octokit = new github.GitHub('ef2686bc3ccd2db0b5a097c6d1b1c8080e9f426a');
 
-    const sha_latest_commit = await octokit.git.getRef({
+    const octokit = new github.GitHub('');
+
+    async function createBlob(content) {
+      const { data: { sha: blob_sha } } = await octokit.git.createBlob({
+        ...config,
+        encoding: "utf-8",
+        content,
+      });
+      return blob_sha;
+    }
+
+    // 1. Get the sha of the last commit
+    const { data: { object } } = await octokit.git.getRef({repo, owner, ref});
+    let sha_latest_commit = object.sha;
+
+    console.log('sha_latest_commit', sha_latest_commit)
+    // 1.1 create branch...
+    const branch = await octokit.git.createRef({
       ...config,
-      ref
+      ref: `refs/heads/${branchName}`,
+      sha: sha_latest_commit
     })
-    console.log(sha_latest_commit.data.object.sha)
 
-    const commit = await octokit.git.getCommit({
-      ...config,
-      commit_sha: sha_latest_commit.data.object.sha
-    })
+    sha_latest_commit = branch.data.object.sha;
 
-    console.log(commit.data.tree.sha);
+    console.log('branch sha_latest_commit', sha_latest_commit)
 
-    const blob = await octokit.git.createBlob({
-      ...config,
-      content: 'asdasdasd' + Date.now()
-    })
-
-    console.log(blob.data.sha);
-
-
-    const sha_new_tree = await octokit.git.createTree({
-      ...config,
+    // 2. Find and store the SHA for the tree object that the heads/master commit points to.
+    const { data: { tree }} = await octokit.git.getCommit({repo, owner, commit_sha: sha_latest_commit})
+    const sha_base_tree = tree.sha;
+  
+    // 3. Create some content
+    const blob1_sha = await createBlob(content);
+    const blob2_sha = await createBlob(content + '111');
+  
+    // 4. Create a new tree with the content in place
+    const { data: new_tree } = await octokit.git.createTree({
+      repo,
+      owner,
+      base_tree: sha_base_tree, // if we don't set this, all other files will show up as deleted.
       tree: [
         {
-          path: "test.text",
-          mode: "100644",
-          type: "blob",
-          sha: blob.data.sha,
-          base_tree: commit.data.tree.sha
+          path: 'test3.xd',
+          mode: FILE,
+          type: 'blob',
+          sha: blob1_sha,
+        },         {
+          path: 'test4.xd',
+          mode: FILE,
+          type: 'blob',
+          sha: blob2_sha,
         }
-      ]
-    })
-
-    console.log(sha_new_tree.data.sha);
-
-    const commit2 = await octokit.git.createCommit({
+      ],
+    });
+  
+    // 5. Create a new commit with this tree object
+    const { data: new_commit } = await octokit.git.createCommit({
+      repo,
+      owner,
+      message: "new commit",
+      tree: new_tree.sha,
+      parents: [
+        sha_latest_commit
+      ],
+    });
+  console.log('new_commit', new_commit)
+    // 6. Move the reference to point at new commit.
+    const { data: { object: updated_ref } } = await octokit.git.updateRef({
+      repo,
+      owner,
+      ref: `heads/${branchName}`,
+      sha: new_commit.sha, 
+    });
+    const pr = await octokit.pulls.create({
       ...config,
-      message: '!!!!!',
-      tree: sha_new_tree.data.sha,
-      parents: [sha_latest_commit.data.object.sha]
+      title: 'title',
+      body: `content
+new line...`,
+      head: branchName,
+      base: 'master'
     })
 
-    console.log(commit2.data)
+    console.log(pr.data)
 
-    const result111 = await octokit.git.updateRef({
-      ...config,
-      ref,
-      sha: commit2.data.sha
-    })
-
-    console.log(result111.data)
 
     const myInput = core.getInput('myInput');
     core.debug(`Hello ${myInput}`);
