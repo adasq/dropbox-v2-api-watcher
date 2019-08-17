@@ -14,11 +14,6 @@ const repo = 'greenbot';
 // Constants
 const FILE = '100644'; // commit mode
 
-
-const content = 'a3' + Date.now()
-
-
-
 async function run() {
   try {
 
@@ -128,6 +123,7 @@ async function run() {
       commitMessage: 'ver update',
       files: [
         ['test321', 'content of test321 xxx'],
+        ['dist/api.json', require('fs').readFileSync('dist/api.json').toString()]
       ]
     })
 
