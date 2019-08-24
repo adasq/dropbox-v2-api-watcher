@@ -228,8 +228,10 @@ async function run() {
       })
   
       await octokit.git.createRef({
+        owner,
+        repo,
         ref: `refs/tags/${tag}`,
-        sha
+        sha: result123.data.sha
       })
     }
     
