@@ -115,7 +115,7 @@ async function run() {
 
     const packageJson = require('fs').readFileSync('package.json').toString();
     const packageJsonObj = JSON.parse(packageJson);
-    const versions = '1.0.0'.split('.')
+    const versions = packageJsonObj.version.split('.')
     versions[2] = (+versions[2] + 1).toString()
     packageJsonObj.version = versions.join('.');
 
