@@ -208,7 +208,7 @@ async function run() {
       to: 'master',
       commitMessage: `v${newVersion}`,
       files: [
-        ['package2.json', JSON.stringify(packageJsonObj, null, '  ')],
+        ['package.json', JSON.stringify(packageJsonObj, null, '  ')],
       ]
     })
 
