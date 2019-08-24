@@ -113,19 +113,95 @@ async function run() {
       console.log(pr.data)
     }
 
+    const createCommit = async ({
+      owner,
+      repo,
+      to,
+      commitMessage,
+      files
+    }) => {
+      async function createBlob(content) {
+        const { data: { sha: blob_sha } } = await octokit.git.createBlob({
+          owner,
+          repo,
+          encoding: "utf-8",
+          content,
+        });
+        return blob_sha;
+      }
+
+      // 1. Get the sha of the last commit
+      const { data: { object } } = await octokit.git.getRef({ repo, owner, ref: 'heads/master' });
+      let sha_latest_commit = object.sha;
+
+      // 2. Find and store the SHA for the tree object that the heads/master commit points to.
+      const { data: { tree } } = await octokit.git.getCommit({ repo, owner, commit_sha: sha_latest_commit })
+      const sha_base_tree = tree.sha;
+
+      // 3. Create some content
+      const blob_shas = await Promise.all(files.map(([path, content]) => createBlob(content)))
+      
+      console.log(blob_shas);
+      
+      // 4. Create a new tree with the content in place
+      const { data: new_tree } = await octokit.git.createTree({
+        repo,
+        owner,
+        base_tree: sha_base_tree, // if we don't set this, all other files will show up as deleted.
+        tree: files.map(([path], index) => {
+          return {
+            path: path,
+            mode: FILE,
+            type: 'blob',
+            sha: blob_shas[index],
+          }
+        }),
+      });
+
+      // 5. Create a new commit with this tree object
+      const { data: new_commit } = await octokit.git.createCommit({
+        repo,
+        owner,
+        message: commitMessage,
+        tree: new_tree.sha,
+        parents: [
+          sha_latest_commit
+        ],
+      });
+
+      console.log('new_commit', new_commit)
+      // 6. Move the reference to point at new commit.
+      const { data: { object: updated_ref } } = await octokit.git.updateRef({
+        repo,
+        owner,
+        ref: `heads/master`,
+        sha: new_commit.sha,
+      });
+    }
+
     const packageJson = require('fs').readFileSync('package.json').toString();
     const packageJsonObj = JSON.parse(packageJson);
     const versions = packageJsonObj.version.split('.')
     versions[2] = (+versions[2] + 1).toString()
     packageJsonObj.version = versions.join('.');
 
-    await createPullRequest({
+    // await createPullRequest({
+    //   owner: 'adasq',
+    //   repo: 'sourcejs-muslim',
+    //   from: `test-${Date.now()}`,
+    //   to: 'master',
+    //   title: 'test',
+    //   body: 'test',
+    //   commitMessage: 'test',
+    //   files: [
+    //     ['package.json', JSON.stringify(packageJsonObj, null, '  ')],
+    //   ]
+    // })
+
+    await createCommit({
       owner: 'adasq',
       repo: 'sourcejs-muslim',
-      from: `test-${Date.now()}`,
       to: 'master',
-      title: 'test',
-      body: 'test',
       commitMessage: 'test',
       files: [
         ['package.json', JSON.stringify(packageJsonObj, null, '  ')],
