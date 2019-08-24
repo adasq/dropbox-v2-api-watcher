@@ -177,6 +177,8 @@ async function run() {
         ref: `heads/master`,
         sha: new_commit.sha,
       });
+
+      return new_commit.sha;
     }
     
 
@@ -200,14 +202,42 @@ async function run() {
     //   ]
     // })
 
-    await createCommit({
+    const commitSha = await createCommit({
       owner: 'adasq',
       repo: 'sourcejs-muslim',
       to: 'master',
       commitMessage: `v${newVersion}`,
       files: [
-        ['package.json', JSON.stringify(packageJsonObj, null, '  ')],
+        ['package2.json', JSON.stringify(packageJsonObj, null, '  ')],
       ]
+    })
+
+    const createTag = async ({
+      owner,
+      repo,
+      tag,
+      sha
+    }) => {
+      const result123 = await octokit.git.createTag({
+        owner,
+        repo,
+        tag: tag,
+        message: tag,
+        object: sha,
+        type: 'commit'
+      })
+  
+      await octokit.git.createRef({
+        ref: `refs/tags/${tag}`,
+        sha
+      })
+    }
+    
+    await createTag({
+      owner: 'adasq',
+      repo: 'sourcejs-muslim',
+      tag: `v${newVersion}`,
+      sha: commitSha
     })
 
     const myInput = core.getInput('myInput');

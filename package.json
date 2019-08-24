@@ -1,6 +1,6 @@
 {
   "name": "node12-template-action",
-  "version": "0.0.0",
+  "version": "2.2.2",
   "private": true,
   "description": "Node 12 template action",
   "main": "lib/main.js",
