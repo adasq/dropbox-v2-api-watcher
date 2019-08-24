@@ -1,23 +1,14 @@
 import * as core from '@actions/core';
 const github = require('@actions/github');
 
-const config = {
-  owner: 'adasq',
-  repo: 'greenbot',
-}
-const ref = 'heads/master'
-
-// Customize this stuff:
-const owner = 'adasq';
-const repo = 'greenbot';
-
-// Constants
-const FILE = '100644'; // commit mode
+const repo = process.env.REPO || 'sourcejs-muslim';
+const owner = process.env.OWNER || 'adasq'
+const token = process.env.TOKEN
 
 async function run() {
   try {
 
-    const octokit = new github.GitHub(process.env.TOKEN);
+    const octokit = new github.GitHub(token);
 
     const createPullRequest = async ({
       owner,
@@ -47,7 +38,7 @@ async function run() {
       // 1.1 create branch...
       const branch = await octokit.git.createRef({
         owner,
-          repo,
+        repo,
         ref: `refs/heads/${from}`,
         sha: sha_latest_commit
       })
@@ -62,9 +53,9 @@ async function run() {
 
       // 3. Create some content
       const blob_shas = await Promise.all(files.map(([path, content]) => createBlob(content)))
-      
+
       console.log(blob_shas);
-      
+
       // 4. Create a new tree with the content in place
       const { data: new_tree } = await octokit.git.createTree({
         repo,
@@ -73,7 +64,7 @@ async function run() {
         tree: files.map(([path], index) => {
           return {
             path: path,
-            mode: FILE,
+            mode: '100644', // commit mode
             type: 'blob',
             sha: blob_shas[index],
           }
@@ -140,9 +131,9 @@ async function run() {
 
       // 3. Create some content
       const blob_shas = await Promise.all(files.map(([path, content]) => createBlob(content)))
-      
+
       console.log(blob_shas);
-      
+
       // 4. Create a new tree with the content in place
       const { data: new_tree } = await octokit.git.createTree({
         repo,
@@ -151,7 +142,7 @@ async function run() {
         tree: files.map(([path], index) => {
           return {
             path: path,
-            mode: FILE,
+            mode: '100644',
             type: 'blob',
             sha: blob_shas[index],
           }
@@ -180,7 +171,6 @@ async function run() {
 
       return new_commit.sha;
     }
-    
 
     const packageJson = require('fs').readFileSync('package.json').toString();
     const packageJsonObj = JSON.parse(packageJson);
@@ -190,8 +180,8 @@ async function run() {
     packageJsonObj.version = newVersion
 
     // await createPullRequest({
-    //   owner: 'adasq',
-    //   repo: 'sourcejs-muslim',
+    //   owner: owner,
+    //   repo: repo,
     //   from: `test-${Date.now()}`,
     //   to: 'master',
     //   title: 'test',
@@ -203,8 +193,8 @@ async function run() {
     // })
 
     const commitSha = await createCommit({
-      owner: 'adasq',
-      repo: 'sourcejs-muslim',
+      owner,
+      repo: repo,
       to: 'master',
       commitMessage: `v${newVersion}`,
       files: [
@@ -226,7 +216,7 @@ async function run() {
         object: sha,
         type: 'commit'
       })
-  
+
       await octokit.git.createRef({
         owner,
         repo,
@@ -234,10 +224,10 @@ async function run() {
         sha: result123.data.sha
       })
     }
-    
+
     await createTag({
-      owner: 'adasq',
-      repo: 'sourcejs-muslim',
+      owner,
+      repo: repo,
       tag: `v${newVersion}`,
       sha: commitSha
     })
