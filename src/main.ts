@@ -113,17 +113,20 @@ async function run() {
       console.log(pr.data)
     }
 
+    const packageJson = require('fs').readFileSync('package.json').toString();
+    const packageJsonObj = JSON.parse(packageJson);
+    packageJsonObj.version = '1.0.0';
+
     await createPullRequest({
       owner: 'adasq',
-      repo: 'dropbox-v2-api',
-      from: `dropbox-api-changes-detection-${Date.now()}`,
+      repo: 'sourcejs-muslim',
+      from: `test-${Date.now()}`,
       to: 'master',
-      title: 'Dropbox API changes detected',
-      body: 'PR body',
-      commitMessage: 'Dropbox API changes detected',
+      title: 'test',
+      body: 'test',
+      commitMessage: 'test',
       files: [
-        ['dist/api.json', require('fs').readFileSync('dist/api.json').toString()],
-        ['dist/api-examples.json', require('fs').readFileSync('dist/api-examples.json').toString()],
+        ['package.json', JSON.stringify(packageJsonObj, null, '  ')],
       ]
     })
 
