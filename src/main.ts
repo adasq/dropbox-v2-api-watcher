@@ -114,8 +114,10 @@ async function run() {
     }
 
     const packageJson = require('fs').readFileSync('package.json').toString();
-    // const packageJsonObj = JSON.parse(packageJson);
-    // packageJsonObj.version = '1.0.0';
+    const packageJsonObj = JSON.parse(packageJson);
+    const versions = '1.0.0'.split('.')
+    versions[2] = (+versions[2] + 1).toString()
+    packageJsonObj.version = versions.join('.');
 
     await createPullRequest({
       owner: 'adasq',
@@ -126,7 +128,7 @@ async function run() {
       body: 'test',
       commitMessage: 'test',
       files: [
-        ['package.json', packageJson],
+        ['package.json', JSON.stringify(packageJsonObj, null, '  ')],
       ]
     })
 
