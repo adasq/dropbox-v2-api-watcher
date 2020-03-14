@@ -119,7 +119,7 @@ async function run() {
       from: `dropbox-api-changes-detection-${Date.now()}`,
       to: 'master',
       title: 'Dropbox API changes detected',
-      body: 'PR body',
+      body: 'Updating API description',
       commitMessage: 'Dropbox API changes detected',
       files: [
         ['dist/api.json', require('fs').readFileSync('dist/api.json').toString()],
