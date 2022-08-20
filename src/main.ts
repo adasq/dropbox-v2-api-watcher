@@ -122,8 +122,7 @@ async function run() {
       body: 'Updating API description',
       commitMessage: 'Dropbox API changes detected',
       files: [
-        ['dist/api.json', require('fs').readFileSync('dist/api.json').toString()],
-        ['dist/api-examples.json', require('fs').readFileSync('dist/api-examples.json').toString()],
+        ['dist/api.json', require('fs').readFileSync('dist/api.json').toString()]
       ]
     })
 
