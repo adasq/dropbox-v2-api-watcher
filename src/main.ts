@@ -122,13 +122,9 @@ async function run() {
       body: 'Updating API description',
       commitMessage: 'Dropbox API changes detected',
       files: [
-        ['dist/api.json', require('fs').readFileSync('dist/api.json').toString()]
+        ['src/api.json', require('fs').readFileSync('src/api.json').toString()]
       ]
     })
-
-    const myInput = core.getInput('myInput');
-    core.debug(`Hello ${myInput}`);
-    core.warning(`!2Hello ${myInput}`);
   } catch (error) {
     core.setFailed(error.message);
   }
